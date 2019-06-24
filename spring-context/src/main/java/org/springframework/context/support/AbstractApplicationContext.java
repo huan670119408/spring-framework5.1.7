@@ -514,41 +514,54 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
-			// Prepare this context for refreshing.
+			// 不是重点，容器刷新前的准备工作，记录下容器的启动时间、标记“已启动”状态、close状态等。
 			prepareRefresh();
 
-			// Tell the subclass to refresh the internal bean factory.
+			// 获取我们的beanFactory，这里Annotation版和XML版就有了不同的实现
+			// Annotation版，因为我们在实例化AnnotationConfigApplicationContext时已经创建了beanFactory，所以这里的逻辑仅仅是获取而已
+			// 但如果是XML版，是在这个环节创建beanFactory
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// Prepare the bean factory for use in this context.
+			// BeanFactory的准备工作
+			// 主要是加了两个后置处理器：ApplicationContextAwareProcessor，ApplicationListenerDetector，一些依赖的注册，注册一些内置bean等
+			// 注意这里是“添加”后置处理器是add到BeanFactory实例的beanPostProcessors(AbstractBeanFactory类的属性
+			// 前面我们在实例化BeanFactory时也注册6个后置处理器，这几个是将后置处理器转换为BeanDefinition注册到BeanFactory中
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// Allows post-processing of the bean factory in context subclasses.
+				// 这里现在是空方法，实际上是提供给子类的扩展点，子类可以重写该方法。
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.
+				// 重点，执行BeanFactoryProcessor各个实现类的 postProcessBeanFactory方法
+				// 执行内置的和我们手动添加的BeanFactoryPostProcessors
+				// 手动添加的是需要手动调用annotationConfigApplicationContext.addBeanFactoryPostProcessor来添加
+				// 那内置的呢？回想我们前面BeanFactory初始化spring为我们加了很多后置处理器
+				// 其中ConfigurationClassPostProcessor就是继承自BeanFactoryPostProcessor
+				// ConfigurationClassPostProcessor是重点！
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// Register bean processors that intercept bean creation.
+				// 注册 BeanPostProcessor 的实现类，注意看和 BeanFactoryPostProcessor 的区别
+				// 此接口两个方法: postProcessBeforeInitialization 和 postProcessAfterInitialization
+				// 两个方法分别在 Bean 初始化之前和初始化之后得到执行。注意，到这里 Bean 还没初始化
 				registerBeanPostProcessors(beanFactory);
 
-				// Initialize message source for this context.
+				// 不是重点，忽略。
 				initMessageSource();
 
-				// Initialize event multicaster for this context.
+				// 初始化当前 ApplicationContext 的事件广播器
 				initApplicationEventMulticaster();
 
-				// Initialize other special beans in specific context subclasses.
+				// 和上面postProcessBeanFactory类似，也是空方法，提供给子类的扩展点
 				onRefresh();
 
-				// Check for listener beans and register them.
+				// 不是重点。注册事件监听器，监听器需要实现 ApplicationListener 接口。
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				// 重点，重点，重点
+				// 初始化所有的 singleton beans
 				finishBeanFactoryInitialization(beanFactory);
 
-				// Last step: publish corresponding event.
+				// 最后，广播事件，ApplicationContext 初始化完成
 				finishRefresh();
 			}
 
