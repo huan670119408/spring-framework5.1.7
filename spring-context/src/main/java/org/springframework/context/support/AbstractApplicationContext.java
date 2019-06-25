@@ -517,7 +517,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			// 不是重点，容器刷新前的准备工作，记录下容器的启动时间、标记“已启动”状态、close状态等。
 			prepareRefresh();
 
-			// 获取我们的beanFactory，这里Annotation版和XML版就有了不同的实现
+			// 获取我们的beanFactory，这里Annotation版和XML版是不同的实现
 			// Annotation版，因为我们在实例化AnnotationConfigApplicationContext时已经创建了beanFactory，所以这里的逻辑仅仅是获取而已
 			// 但如果是XML版，是在这个环节创建beanFactory
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();

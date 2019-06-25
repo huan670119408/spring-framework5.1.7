@@ -69,7 +69,8 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
 			// 为我们手动添加的beanFactoryPostProcessors做区分存入上面两个集合里
-			// 此处逻辑一般情况下为空
+			// 除了用注解，我们可以这么添加BeanFactoryPostProcessor ：context.addBeanFactoryPostProcessor(new MyBeanDefinitionRegistryPostProcessor());
+			// 不过此处一般情况下为空，我觉得可以跳过
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
@@ -90,7 +91,7 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 
-			// 这个方法过长，我们划分一下，从这开始算是第一步，执行实现了PriorityOrdered接口的BeanDefinitionRegistryPostProcessor
+			// 下面方法过长，我们划分一下，从这开始算是第一步，执行实现了PriorityOrdered接口的BeanDefinitionRegistryPostProcessor
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
 			// 首先，调用实现PriorityOrdered的BeanDefinitionRegistryPostProcessors
 			// PriorityOrdered即优先排序，是个接口，继承自Ordered接口，而ConfigurationClassPostProcessor实现了PriorityOrdered接口
@@ -99,6 +100,7 @@ final class PostProcessorRegistrationDelegate {
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			// postProcessorNames中只有ConfigurationClassPostProcessor(org.springframework.context.annotation.internalConfigurationAnnotationProcessor)
+			// 因为我们前面加的加几个后置处理器只有ConfigurationClassPostProcessor是BeanDefinitionRegistryPostProcessor类型
 			for (String ppName : postProcessorNames) {
 				if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
 					// 返回一个ConfigurationClassPostProcessor实例放入currentRegistryProcessors中

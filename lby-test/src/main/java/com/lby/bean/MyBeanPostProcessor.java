@@ -12,7 +12,7 @@ public class MyBeanPostProcessor implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         if ("myDao".equals(beanName)) {
-            System.out.println("BeforeInitialization " + beanName + "...");
+            System.out.println("MyBeanPostProcessor -> postProcessBeforeInitialization ");
         }
         return null;
     }
@@ -20,7 +20,7 @@ public class MyBeanPostProcessor implements BeanPostProcessor {
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if ("myDao".equals(beanName)) {
-            System.out.println("AfterInitialization " + beanName + "...");
+            System.out.println("MyBeanPostProcessor -> postProcessAfterInitialization " );
         }
         return null;
     }

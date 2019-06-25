@@ -12,5 +12,6 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
         BeanDefinition bd = configurableListableBeanFactory.getBeanDefinition("myService");
         bd.setBeanClassName("com.lby.bean.MyDao");
+        System.out.println("MyBeanFactoryPostProcessor - > postProcessBeanFactory");
     }
 }
