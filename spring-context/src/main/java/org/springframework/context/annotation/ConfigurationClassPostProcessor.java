@@ -60,6 +60,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -260,17 +261,24 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	 */
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
-		// 获得所有的BeanDefine
+		// 获得所有的BeanDefine，也就是前面注册的那几个后置处理器，我们前面把后置处理器转换成BeanDefinition注册到了BeanFactory中
+		// 加上我们自己注册的配置Bean：AppConfig
+		// 前面在refresh之前，我们把AppConfig.class注册到了BeanFactory中
 		String[] candidateNames = registry.getBeanDefinitionNames();
-
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+			// 判断beanDef是Full还是Lite
+			// 所谓Full 就是用@Configuration注解修饰
+			// 所谓Lite 就是用@Component、@ComponentScan、@Import、@ImportResource其中之一修饰
+
+			// 下面是判断“CONFIGURATION_CLASS_ATTRIBUTE”属性值是Full还是Lite，初次执行时CONFIGURATION_CLASS_ATTRIBUTE为null，所以不走下面逻辑
 			if (ConfigurationClassUtils.isFullConfigurationClass(beanDef) ||
 					ConfigurationClassUtils.isLiteConfigurationClass(beanDef)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
+			// 默认会走这里，检查beanDef的注解，将他归类为Full或Lite，并设置“CONFIGURATION_CLASS_ATTRIBUTE”属性，来标识它是Full还是Lite
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
@@ -289,10 +297,13 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		});
 
 		// Detect any custom bean name generation strategy supplied through the enclosing application context
+		// 检测通过封闭的应用程序上下文提供的任何自定义bean名称生成策略
 		SingletonBeanRegistry sbr = null;
+		// registry实际上就是DefaultListableBeanFactory对象，DefaultListableBeanFactory的继承链路上既有SingletonBeanRegistry，也有BeanDefinitionRegistry
 		if (registry instanceof SingletonBeanRegistry) {
 			sbr = (SingletonBeanRegistry) registry;
 			if (!this.localBeanNameGeneratorSet) {
+				// 从命名看来是Bean命名生成器，默认也不会走，忽略吧
 				BeanNameGenerator generator = (BeanNameGenerator) sbr.getSingleton(CONFIGURATION_BEAN_NAME_GENERATOR);
 				if (generator != null) {
 					this.componentScanBeanNameGenerator = generator;
@@ -309,13 +320,15 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		ConfigurationClassParser parser = new ConfigurationClassParser(
 				this.metadataReaderFactory, this.problemReporter, this.environment,
 				this.resourceLoader, this.componentScanBeanNameGenerator, registry);
-
+		// candidates是所有configBean
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		do {
+			// 解析configBean，解析了config上个各类注解，扫描其他bean并注册到BeanFactory
 			parser.parse(candidates);
 			parser.validate();
 
+			//上面parse里解析@Bean方法最后只是放入了parser.getConfigurationClasses()，这里取出来
 			Set<ConfigurationClass> configClasses = new LinkedHashSet<>(parser.getConfigurationClasses());
 			configClasses.removeAll(alreadyParsed);
 
@@ -325,7 +338,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
-			this.reader.loadBeanDefinitions(configClasses);
+			this.reader.loadBeanDefinitions(configClasses);//注册到BeanFactory
 			alreadyParsed.addAll(configClasses);
 
 			candidates.clear();
@@ -351,6 +364,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		while (!candidates.isEmpty());
 
 		// Register the ImportRegistry as a bean in order to support ImportAware @Configuration classes
+		// 将ImportRegistry注册为bean以支持ImportAware @Configuration类
 		if (sbr != null && !sbr.containsSingleton(IMPORT_REGISTRY_BEAN_NAME)) {
 			sbr.registerSingleton(IMPORT_REGISTRY_BEAN_NAME, parser.getImportRegistry());
 		}
@@ -358,6 +372,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		if (this.metadataReaderFactory instanceof CachingMetadataReaderFactory) {
 			// Clear cache in externally provided MetadataReaderFactory; this is a no-op
 			// for a shared cache since it'll be cleared by the ApplicationContext.
+			// 在外部提供的MetadataReaderFactory中清除缓存;这是共享缓存的无操作，因为它将被ApplicationContext清除
 			((CachingMetadataReaderFactory) this.metadataReaderFactory).clearCache();
 		}
 	}

@@ -11,10 +11,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class SpringTest {
 
 	public static void main(String[] args){
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.register(AppConfig.class);
-		context.addBeanFactoryPostProcessor(new MyBeanDefinitionRegistryPostProcessor());
-		context.refresh();
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 		MyDao myDao = (MyDao)context.getBean("myDao");
 		MyDao myService = (MyDao)context.getBean("myService");
 //		System.out.println(myService.toString());

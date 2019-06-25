@@ -1000,7 +1000,7 @@ public abstract class AnnotatedElementUtils {
 			}
 		}
 
-		// Recursively search in meta-annotations
+		// Recursively search in meta-annotations 递归搜索元注释
 		for (Annotation annotation : annotations) {
 			Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
 			if (!AnnotationUtils.hasPlainJavaAnnotationsOnly(currentAnnotationType)) {
