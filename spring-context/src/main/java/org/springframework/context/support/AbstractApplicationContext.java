@@ -557,8 +557,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 不是重点。注册事件监听器，监听器需要实现 ApplicationListener 接口。
 				registerListeners();
 
-				// 重点，重点，重点
-				// 初始化所有的 singleton beans
+				// 重点，初始化所有的 singleton beans
 				finishBeanFactoryInitialization(beanFactory);
 
 				// 最后，广播事件，ApplicationContext 初始化完成

@@ -85,6 +85,8 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	public AnnotationConfigApplicationContext(Class<?>... annotatedClasses) {
 		this();
 		register(annotatedClasses);
+		// AnnotationConfigApplicationContext继承自GenericApplicationContext
+		// GenericApplicationContext只能refresh一次 否则会抛异常
 		refresh();
 	}
 
