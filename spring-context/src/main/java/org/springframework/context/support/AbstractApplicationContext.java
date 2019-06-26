@@ -523,9 +523,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// BeanFactory的准备工作
-			// 主要是加了两个后置处理器：ApplicationContextAwareProcessor，ApplicationListenerDetector，一些依赖的注册，注册一些内置bean等
-			// 注意这里是“添加”后置处理器是add到BeanFactory实例的beanPostProcessors(AbstractBeanFactory类的属性
-			// 前面我们在实例化BeanFactory时也注册6个后置处理器，这几个是将后置处理器转换为BeanDefinition注册到BeanFactory中
+			// 主要是加了两个后置处理器：ApplicationContextAwareProcessor，ApplicationListenerDetector，一些依赖的忽略，注册一些内置bean等
+			// 注意这里是添加后置处理器是add到BeanFactory（AbstractBeanFactory类的属性）
+			// 而前面我们在实例化BeanFactory时是注册了几个后置处理器，这几个是将后置处理器转换为BeanDefinition注册到BeanFactory中
+			// 这里没必要太纠结，只是Spring将一分部后置处理器是注册，一部分是add。
 			prepareBeanFactory(beanFactory);
 
 			try {
