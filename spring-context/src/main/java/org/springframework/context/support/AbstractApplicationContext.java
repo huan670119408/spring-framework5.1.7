@@ -524,9 +524,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			// BeanFactory的准备工作
 			// 主要是加了两个后置处理器：ApplicationContextAwareProcessor，ApplicationListenerDetector，一些依赖的忽略，注册一些内置bean等
-			// 注意这里是添加后置处理器是add到BeanFactory（AbstractBeanFactory类的属性）
+			// 注意这里是添加后置处理器是add到BeanFactory（AbstractBeanFactory类的beanPostProcessors属性）
 			// 而前面我们在实例化BeanFactory时是注册了几个后置处理器，这几个是将后置处理器转换为BeanDefinition注册到BeanFactory中
-			// 这里没必要太纠结，只是Spring将一分部后置处理器是注册，一部分是add。
+			// 这里没必要太纠结，当前只是Spring将一分部后置处理器转换成BeanDefine注册到BeanFactory，一部分是直接add到BeanFactory
+			// 后面都会统一add到BeanFactory的beanPostProcessors属性
 			prepareBeanFactory(beanFactory);
 
 			try {
@@ -541,9 +542,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// ConfigurationClassPostProcessor是重点！
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// 注册 BeanPostProcessor 的实现类，注意看和 BeanFactoryPostProcessor 的区别
-				// 此接口两个方法: postProcessBeforeInitialization 和 postProcessAfterInitialization
-				// 两个方法分别在 Bean 初始化之前和初始化之后得到执行。注意，到这里 Bean 还没初始化
+				// 注册 BeanPostProcessor 的实现类
+				// 所有的BeanPostProcessor统一add到BeanFactory的beanPostProcessors属性，准备执行
 				registerBeanPostProcessors(beanFactory);
 
 				// 不是重点，忽略。

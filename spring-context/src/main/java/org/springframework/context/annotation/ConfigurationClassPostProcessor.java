@@ -372,7 +372,6 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		if (this.metadataReaderFactory instanceof CachingMetadataReaderFactory) {
 			// Clear cache in externally provided MetadataReaderFactory; this is a no-op
 			// for a shared cache since it'll be cleared by the ApplicationContext.
-			// 在外部提供的MetadataReaderFactory中清除缓存;这是共享缓存的无操作，因为它将被ApplicationContext清除
 			((CachingMetadataReaderFactory) this.metadataReaderFactory).clearCache();
 		}
 	}
