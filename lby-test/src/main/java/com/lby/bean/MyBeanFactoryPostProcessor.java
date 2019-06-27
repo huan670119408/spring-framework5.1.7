@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-        BeanDefinition bd = configurableListableBeanFactory.getBeanDefinition("myService");
-        bd.setBeanClassName("com.lby.bean.MyDao");
+//        BeanDefinition bd = configurableListableBeanFactory.getBeanDefinition("myService");
+//        bd.setBeanClassName("com.lby.bean.MyDao");
         System.out.println("MyBeanFactoryPostProcessor - > postProcessBeanFactory");
     }
 }

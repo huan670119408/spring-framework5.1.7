@@ -325,10 +325,14 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		do {
 			// 解析configBean，解析了config上个各类注解，扫描其他bean并注册到BeanFactory
+			// 如果是@Compent注解会直接解析并注册到BeanFactory
+			// 如果是@Import  @Bean等注解会先放入parser的ConfigurationClass，后面单独处理
+			// 其中如果是@Import的类实现了ImportBeanDefinitionRegistrars，会放到configClass的ImportBeanDefinitionRegistrars
+			// 这里只是Spring做了个区分，后面处理逻辑会区别对待处理而已
 			parser.parse(candidates);
 			parser.validate();
 
-			//上面parse里解析@Bean方法最后只是放入了parser.getConfigurationClasses()，这里取出来
+			//上面parse里解析@Import、@Bean最后都放入ConfigurationClass，这里取出来
 			Set<ConfigurationClass> configClasses = new LinkedHashSet<>(parser.getConfigurationClasses());
 			configClasses.removeAll(alreadyParsed);
 
@@ -338,7 +342,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
-			this.reader.loadBeanDefinitions(configClasses);//注册到BeanFactory
+			// 这里是将前面只解析但没注册的Bean，都注册
+			// 比如@Import、@Bean、@ImportResources
+			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
 
 			candidates.clear();

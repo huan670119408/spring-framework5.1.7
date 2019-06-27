@@ -134,14 +134,16 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		// 前面处理@Import注解的信息，但不包括ImportBeanDefinitionRegistrar，将其注册到BeanFactory
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
-
+		// 前面处理@ImportResources注解的信息，注册到BeanFactory
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+		//前面处理@ImportBeanDefinitionRegistrar注解的信息，注册到BeanFactory，前面解析Import时放入了这里
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 

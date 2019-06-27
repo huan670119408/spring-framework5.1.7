@@ -18,6 +18,7 @@ public class SpringTest {
 		myImportSelectorAAA.printSomething();
 		MyImportSelectorBBB myImportSelectorBBB = (MyImportSelectorBBB)context.getBean(MyImportSelectorBBB.class.getName());
 		myImportSelectorBBB.printSomething();
+		MyService myService = (MyService)context.getBean("myService");
 	}
 
 }

@@ -311,8 +311,10 @@ class ConfigurationClassParser {
 
 		// Process any @Import annotations
 		// @Import注解是spring中很重要的一个注解，Springboot大量应用这个注解
-		// @Import三种类，普通类，ImportSelector，ImportBeanDefinitionRegistrar
-		// 存疑
+		// @Import分三种，普通Import，ImportSelector，ImportBeanDefinitionRegistrar
+		// 如果是普通Import、ImportSelector，会先放入parser的configClass，后面单独处理
+		// 其中如果是@Import的类实现了ImportBeanDefinitionRegistrars，会放到configClass的ImportBeanDefinitionRegistrars
+		// 这里只是Spring做了个区分，后面处理逻辑会区别对区别待处理而已
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
 
 		// Process any @ImportResource annotations
@@ -336,11 +338,9 @@ class ConfigurationClassParser {
 		}
 
 		// Process default methods on interfaces
-		// 先忽略，默认没走 暂时不明白
 		processInterfaces(configClass, sourceClass);
 
 		// Process superclass, if any
-		// // 先忽略，默认没走 暂时不明白
 		if (sourceClass.getMetadata().hasSuperClass()) {
 			String superclass = sourceClass.getMetadata().getSuperClassName();
 			if (superclass != null && !superclass.startsWith("java") &&
