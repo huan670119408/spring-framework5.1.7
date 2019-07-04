@@ -10,15 +10,12 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class SpringTest {
 
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-		MyImport myImport = (MyImport)context.getBean(MyImport.class.getName());
-		myImport.printSomething();
-		MyImportSelectorAAA myImportSelectorAAA = (MyImportSelectorAAA)context.getBean(MyImportSelectorAAA.class.getName());
-		myImportSelectorAAA.printSomething();
-		MyImportSelectorBBB myImportSelectorBBB = (MyImportSelectorBBB)context.getBean(MyImportSelectorBBB.class.getName());
-		myImportSelectorBBB.printSomething();
-		MyService myService = (MyService)context.getBean("myService");
+		User u = (User) context.getBean("myFactoryBean");
+		System.out.println(u);
+		MyFactoryBean myFactoryBean = (MyFactoryBean) context.getBean("&myFactoryBean");
+		System.out.println(myFactoryBean);
 	}
 
 }
