@@ -544,6 +544,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// 注册 BeanPostProcessor 的实现类
 				// 所有的BeanPostProcessor统一add到BeanFactory的beanPostProcessors属性，准备执行
+				// 这里既然要注册，那么就要实例化，所以后置处理器在此处已经实例化了
 				registerBeanPostProcessors(beanFactory);
 
 				// 不是重点，忽略。
@@ -868,7 +869,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 					beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
 		}
 
-		// 默认没走，忽略
+		// 忽略
 		if (!beanFactory.hasEmbeddedValueResolver()) {
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
 		}
